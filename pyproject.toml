@@ -20,7 +20,7 @@ classifiers = [
 dependencies = [
     "click>=8.1.7",
     "pandas>=2.2.0",
-    "pydantic>=2.6.0",
+    "pydantic[email]>=2.6.0",
     "azure-identity>=1.15.0",
     "requests>=2.31.0",
     "vobject>=0.9.7",
@@ -38,14 +38,18 @@ dev = [
 ]
 
 [project.scripts]
-dbc = "digital_business_cards.cli:cli"
+dbc = "src.cli:cli"
 
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+package-dir = {"" = "."}
+
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
+include = ["src*"]
 
 [tool.black]
 line-length = 120

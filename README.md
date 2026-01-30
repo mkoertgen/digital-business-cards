@@ -13,21 +13,24 @@ Generate QR codes for digital business cards from Azure AD/Entra contacts.
 ## Quick Start
 
 ```bash
-# Install dependencies
-pip install -e .
+# Install uv (recommended)
+# See: https://docs.astral.sh/uv/getting-started/installation/
 
 # First-time Azure login
 az login
 
 # Sync contacts from Azure AD
-python dbc.py sync
+uv run dbc sync
 
 # Generate all QR codes
-python dbc.py generate-all
+uv run dbc generate-all
 
 # Generate single card
-python dbc.py generate MKo
+uv run dbc generate MKo
 ```
+
+> **Recommended**: Use `uv` for automatic dependency management and virtual environment handling.
+> Alternatively, you can use `pip install -e .` and run `dbc` directly.
 
 ## Commands
 
@@ -35,42 +38,42 @@ python dbc.py generate MKo
 
 ```bash
 # Basic sync (uses az login cache)
-python dbc.py sync
+uv run dbc sync
 
 # Filter by department
-python dbc.py sync --department "Engineering"
+uv run dbc sync --department "Engineering"
 
 # Interactive browser auth (first-time)
-python dbc.py sync --interactive
+uv run dbc sync --interactive
 
 # Preview without saving
-python dbc.py sync --dry-run
+uv run dbc sync --dry-run
 ```
 
 ### Generate QR Codes
 
 ```bash
 # All active contacts
-python dbc.py generate-all
+uv run dbc generate-all
 
 # Specific contact by ID
-python dbc.py generate MKo
+uv run dbc generate MKo
 
 # Custom output directory
-python dbc.py generate-all --output ./cards
+uv run dbc generate-all --output ./cards
 
 # SVG format (default: PNG)
-python dbc.py generate-all --format svg
+uv run dbc generate-all --format svg
 
 # Larger QR code
-python dbc.py generate-all --size 512
+uv run dbc generate-all --size 512
 ```
 
 ### List Contacts
 
 ```bash
-python dbc.py list
-python dbc.py list --verbose
+uv run dbc list
+uv run dbc list --verbose
 ```
 
 ## Output Structure
