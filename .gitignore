@@ -1,18 +1,4 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/# Created by https://www.toptal.com/developers/gitignore/api/python,intellij+all,visualstudiocode
+# Created by https://www.toptal.com/developers/gitignore/api/python,intellij+all,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,intellij+all,visualstudiocode
 
 ### Intellij+all ###
@@ -295,41 +281,8 @@ pyrightconfig.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/python,intellij+all,visualstudiocode
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-venv/
-ENV/
-env/
-.venv
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
 
 # Data & Output
-data/contacts.csv
-data/output/*.vcf
-data/output/*.png
-data/output/*.svg
-
+data/*
 # Keep structure
 !data/output/.gitkeep
-
-# OS
-.DS_Store
-Thumbs.db
