@@ -5,7 +5,7 @@ from pathlib import Path
 
 import vobject
 
-from .models import Contact
+from src.models import Contact
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import segno
 
-from .models import Contact, QRConfig
+from src.models import Contact, QRConfig
 
 logger = logging.getLogger(__name__)
 

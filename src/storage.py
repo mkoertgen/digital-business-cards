@@ -1,11 +1,10 @@
 """Contact storage and CSV management."""
 
+import csv
 import logging
 from pathlib import Path
 
-import pandas as pd
-
-from .models import Contact
+from src.models import Contact
 
 logger = logging.getLogger(__name__)
 
@@ -35,14 +34,21 @@ class ContactStorage:
         
         self.csv_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Convert to DataFrame
-        df = pd.DataFrame([c.model_dump() for c in contacts])
+        # Get field names from first contact
+        fieldnames = list(contacts[0].model_dump().keys())
         
-        # Sort by ID
-        df = df.sort_values('id')
+        # Sort contacts by ID
+        contacts_sorted = sorted(contacts, key=lambda c: c.id)
         
-        # Save
-        df.to_csv(self.csv_path, index=False, encoding='utf-8')
+        # Write CSV
+        with open(self.csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for contact in contacts_sorted:
+                # Convert None to empty string for CSV
+                row = {k: (v if v is not None else '') for k, v in contact.model_dump().items()}
+                writer.writerow(row)
+        
         logger.info(f"Saved {len(contacts)} contacts to {self.csv_path}")
     
     def load(self) -> list[Contact]:
@@ -56,16 +62,17 @@ class ContactStorage:
             logger.warning(f"CSV not found: {self.csv_path}")
             return []
         
-        df = pd.read_csv(self.csv_path)
-        
-        # Convert to Contact objects
         contacts = []
-        for _, row in df.iterrows():
-            try:
-                contact = Contact(**row.to_dict())
-                contacts.append(contact)
-            except Exception as e:
-                logger.warning(f"Failed to parse contact {row.get('id')}: {e}")
+        with open(self.csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                try:
+                    # Convert empty strings to None for Optional fields
+                    cleaned_row = {k: (None if v == '' else v) for k, v in row.items()}
+                    contact = Contact(**cleaned_row)
+                    contacts.append(contact)
+                except Exception as e:
+                    logger.warning(f"Failed to parse contact {row.get('id')}: {e}")
         
         logger.info(f"Loaded {len(contacts)} contacts from {self.csv_path}")
         return contacts

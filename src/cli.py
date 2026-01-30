@@ -5,11 +5,12 @@ from pathlib import Path
 
 import click
 
-from .azure_sync import AzureContactSync
-from .models import Contact, QRConfig
-from .qr_generator import QRCodeGenerator
-from .storage import ContactStorage
-from .vcard import VCardGenerator
+from src.azure_sync import AzureContactSync
+from src.models import Contact, QRConfig
+from src.orgchart import OrgChartGenerator
+from src.qr_generator import QRCodeGenerator
+from src.storage import ContactStorage
+from src.vcard import VCardGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -231,6 +232,80 @@ def list(verbose: bool) -> None:
             if verbose:
                 for contact in inactive_contacts:
                     click.echo(f"  {contact.id:10} | {contact.name:30} [INACTIVE]")
+        
+    except Exception as e:
+        click.secho(f"❌ Error: {e}", fg="red")
+        raise click.Abort()
+
+
+@cli.command()
+@click.option('--format', '-f', type=click.Choice(['d3-html', 'd3']), default='d3-html',
+              help='Diagram format (default: d3-html for interactive)')
+@click.option('--department', '-d', default=None,
+              help='Filter by department')
+@click.option('--root', '-r', default=None,
+              help='Start from specific contact ID')
+@click.option('--output', '-o', default=None, type=click.Path(),
+              help='Output file (.html/.json)')
+def orgchart(format: str, department: str | None, root: str | None, output: str | None) -> None:
+    """
+    Generate organization chart from contact hierarchy.
+    
+    Reads manager relationships from synced contacts and generates a diagram.
+    
+    Formats:
+      d3-html  - Interactive web visualization with recording (.html) - RECOMMENDED
+      d3       - JSON data for d3-org-chart library (.json)
+    
+    Examples:
+      dbc orgchart                              # Interactive HTML to stdout
+      dbc orgchart --format d3-html -o org.html # Interactive HTML to file
+      dbc orgchart --format d3 -o org.json      # D3 JSON data
+      dbc orgchart --department "Engineering"   # Filter by dept
+    """
+    try:
+        storage = ContactStorage()
+        contacts = storage.load()
+        
+        if not contacts:
+            click.secho("⚠️  No contacts found. Run 'dbc sync' first.", fg="yellow")
+            return
+        
+        # Filter by department
+        if department:
+            contacts_filtered = [c for c in contacts if c.department == department]
+            if not contacts_filtered:
+                click.secho(f"⚠️  No contacts in department '{department}'", fg="yellow")
+                return
+            click.secho(f"📊 Generating {format} diagram for {len(contacts_filtered)} contacts in '{department}'", fg="cyan")
+        else:
+            click.secho(f"📊 Generating {format} diagram for {len(contacts)} contacts", fg="cyan")
+        
+        # Auto-detect extension if not provided
+        if output and not output.endswith(('.json', '.html')):
+            ext_map = {
+                'd3': '.json',
+                'd3-html': '.html'
+            }
+            ext = ext_map.get(format, '.html')
+            output = output + ext
+        
+        # Generate diagram
+        generator = OrgChartGenerator(storage)
+        output_path = Path(output) if output else None
+        
+        diagram = generator.export(
+            format=format,
+            output_file=output_path,
+            department=department,
+            root_id=root
+        )
+        
+        # Output
+        if output:
+            click.secho(f"✅ Exported to {output}", fg="green", bold=True)
+        else:
+            click.echo("\n" + diagram + "\n")
         
     except Exception as e:
         click.secho(f"❌ Error: {e}", fg="red")

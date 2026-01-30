@@ -7,6 +7,7 @@ Generate QR codes for digital business cards from Azure AD/Entra contacts.
 - 🔄 Sync contacts from Azure AD/Entra (reuses `az login` credentials)
 - 📇 Generate vCard (VCF) files with contact details
 - 📱 Create QR codes containing vCard data
+- 📊 Generate organization charts (Mermaid/PlantUML)
 - 🎯 Batch generation or individual cards
 - 🖼️ Export as PNG or SVG
 
@@ -75,6 +76,32 @@ uv run dbc generate-all --size 512
 uv run dbc list
 uv run dbc list --verbose
 ```
+
+### Organization Chart
+
+```bash
+# Generate PlantUML diagram (stdout, default)
+uv run dbc orgchart
+
+# Export to file
+uv run dbc orgchart --output org.puml
+
+# Mermaid format
+uv run dbc orgchart --format mermaid --output org.md
+
+# Filter by department
+uv run dbc orgchart --department "Engineering"
+
+# Start from specific person
+uv run dbc orgchart --root MKo
+```
+
+**PlantUML features:**
+
+- Orthogonal (rectangular) arrows for clean layouts
+- Department containers for visual grouping
+- Better bin-packing of organizational units
+- `.puml` files can be rendered with PlantUML tools/plugins
 
 ## Output Structure
 

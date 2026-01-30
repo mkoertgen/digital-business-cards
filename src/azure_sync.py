@@ -7,7 +7,7 @@ from typing import Optional
 from azure.identity import AzureCliCredential, InteractiveBrowserCredential
 import requests
 
-from .models import Contact
+from src.models import Contact
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,8 @@ class AzureContactSync:
         }
         params = {
             "$filter": "accountEnabled eq true",
-            "$select": "id,displayName,mail,userPrincipalName,jobTitle,department,mobilePhone,businessPhones",
+            "$select": "id,displayName,mail,userPrincipalName,jobTitle,department,mobilePhone,businessPhones,manager",
+            "$expand": "manager($select=id,displayName)",
             "$top": "999"
         }
         
@@ -77,6 +78,10 @@ class AzureContactSync:
         if department:
             users = [u for u in users if u.get('department') == department]
             logger.info(f"Filtered to {len(users)} users in department '{department}'")
+        
+        # Filter out service accounts / booking pages (no real users)
+        users = [u for u in users if u.get('jobTitle')]
+        logger.info(f"Filtered to {len(users)} users with jobTitle (real employees)")
         
         # Convert to Contact models
         contacts = []
@@ -108,6 +113,13 @@ class AzureContactSync:
         phone = business_phones[0] if business_phones else None
         mobile = user.get('mobilePhone')
         
+        # Manager
+        manager_id = None
+        if manager_data := user.get('manager'):
+            manager_name = manager_data.get('displayName', '')
+            if manager_name:
+                manager_id = self._generate_id(manager_name)
+        
         return Contact(
             id=contact_id,
             name=name,
@@ -116,6 +128,7 @@ class AzureContactSync:
             department=user.get('department'),
             phone=phone,
             mobile=mobile,
+            manager=manager_id,
             active=True
         )
     
