@@ -1,0 +1,240 @@
+# Mock contacts for acme-gmbh.example - mirrors data/contacts.mock.csv
+# Uses standard inetOrgPerson attributes (no AD-specific attrs)
+
+dn: uid=ACe,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: ACe
+cn: Anna Ceos
+sn: Ceos
+givenName: Anna
+displayName: Anna Ceos
+mail: anna.ceos@acme-gmbh.example
+title: Geschaeftsfuehrerin
+ou: Management
+telephoneNumber: +49 (800) 000-0001
+mobile: +49 (160) 000-0001
+o: acme
+userPassword: changeme
+
+dn: uid=BMa,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: BMa
+cn: Bernd Manager
+sn: Manager
+givenName: Bernd
+displayName: Bernd Manager
+mail: bernd.manager@acme-gmbh.example
+title: Geschaeftsfuehrer
+ou: Operations
+telephoneNumber: +49 (800) 000-0002
+mobile: +49 (171) 000-0002
+o: acme
+userPassword: changeme
+
+dn: uid=CHe,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: CHe
+cn: Clara Heinz
+sn: Heinz
+givenName: Clara
+displayName: Clara Heinz
+mail: clara.heinz@acme-gmbh.example
+title: Head of Technology
+ou: Engineering
+telephoneNumber: +49 (800) 000-0010
+mobile: +49 (151) 000-0010
+manager: uid=ACe,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=DSc,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: DSc
+cn: David Schmidt
+sn: Schmidt
+givenName: David
+displayName: David Schmidt
+mail: david.schmidt@acme-gmbh.example
+title: Head of Operations
+ou: Operations
+telephoneNumber: +49 (800) 000-0011
+mobile: +49 (172) 000-0011
+manager: uid=BMa,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=EBa,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: EBa
+cn: Eva Bauer
+sn: Bauer
+givenName: Eva
+displayName: Eva Bauer
+mail: eva.bauer@acme-gmbh.example
+title: Senior Software Engineer
+ou: Engineering
+telephoneNumber: +49 (800) 000-0020
+manager: uid=CHe,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=FKr,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: FKr
+cn: Frank Krause
+sn: Krause
+givenName: Frank
+displayName: Frank Krause
+mail: frank.krause@acme-gmbh.example
+title: DevOps Engineer
+ou: Engineering
+telephoneNumber: +49 (800) 000-0021
+manager: uid=CHe,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=GWo,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: GWo
+cn: Greta Wolf
+sn: Wolf
+givenName: Greta
+displayName: Greta Wolf
+mail: greta.wolf@acme-gmbh.example
+title: Solution Architect
+ou: Engineering
+telephoneNumber: +49 (800) 000-0022
+mobile: +49 (178) 000-0022
+manager: uid=CHe,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=HMe,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: HMe
+cn: Hans Meyer
+sn: Meyer
+givenName: Hans
+displayName: Hans Meyer
+mail: hans.meyer@acme-gmbh.example
+title: Junior Developer
+ou: Engineering
+telephoneNumber: +49 (800) 000-0023
+manager: uid=EBa,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=IKo,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: IKo
+cn: Iris Koch
+sn: Koch
+givenName: Iris
+displayName: Iris Koch
+mail: iris.koch@acme-gmbh.example
+title: Senior Consultant
+ou: Operations
+telephoneNumber: +49 (800) 000-0030
+mobile: +49 (175) 000-0030
+manager: uid=DSc,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=JLa,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: JLa
+cn: Jana Lang
+sn: Lang
+givenName: Jana
+displayName: Jana Lang
+mail: jana.lang@acme-gmbh.example
+title: Inside Sales
+ou: Operations
+telephoneNumber: +49 (800) 000-0031
+manager: uid=DSc,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=KMu,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: KMu
+cn: Klaus Mueller
+sn: Mueller
+givenName: Klaus
+displayName: Klaus Mueller
+mail: k.mueller@acme-gmbh.example
+title: Legal Counsel
+ou: Legal & Compliance
+telephoneNumber: +49 (800) 000-0032
+manager: uid=DSc,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=LBe,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: LBe
+cn: Lena Berg
+sn: Berg
+givenName: Lena
+displayName: Lena Berg
+mail: lena.berg@acme-gmbh.example
+title: Junior Consultant
+ou: Operations
+telephoneNumber: +49 (800) 000-0033
+manager: uid=IKo,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme
+
+dn: uid=MPf,ou=people,dc=acme,dc=example
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: MPf
+cn: Marc Pfeiffer
+sn: Pfeiffer
+givenName: Marc
+displayName: Marc Pfeiffer
+mail: marc.pfeiffer@acme-gmbh.example
+title: Security Engineer
+ou: Engineering
+telephoneNumber: +49 (800) 000-0024
+manager: uid=CHe,ou=people,dc=acme,dc=example
+o: acme
+userPassword: changeme

@@ -15,7 +15,7 @@ class Contact(BaseModel):
     phone: Optional[str] = Field(default=None, description="Phone number")
     mobile: Optional[str] = Field(default=None, description="Mobile number")
     manager: Optional[str] = Field(default=None, description="Manager ID")
-    company: str = Field(default="colenio", description="Company name")
+    company: str = Field(default="", description="Company name")
     active: bool = Field(default=True, description="Is active")
     
     @property

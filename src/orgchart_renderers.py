@@ -51,7 +51,10 @@ class D3JsonRenderer(OrgChartRenderer):
         # Check for multiple roots
         roots = [n for n in nodes if not n.contact.manager]
         needs_virtual_root = len(roots) > 1
-        
+
+        # Derive company name from contacts
+        company_name = next((n.contact.company for n in nodes if n.contact.company), "Organization")
+
         # Build flat array with parentId references
         data = []
         
@@ -59,7 +62,7 @@ class D3JsonRenderer(OrgChartRenderer):
         if needs_virtual_root:
             data.append({
                 "id": "VIRTUAL_ROOT",
-                "name": "colenio",
+                "name": company_name,
                 "title": "Organization",
                 "department": "",
                 "email": "",
@@ -105,12 +108,16 @@ class D3HtmlRenderer(OrgChartRenderer):
         json_renderer = D3JsonRenderer()
         json_data = json_renderer.render(graph, department, root_id)
         
+        # Derive company name from JSON data for title
+        raw_nodes = list(graph.nodes.values())
+        company_name = next((n.contact.company for n in raw_nodes if n.contact.company), "Organization")
+
         html = f'''<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organigramm - colenio</title>
+    <title>Organigramm - {company_name}</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.1.2/build/d3-flextree.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3"></script>
@@ -272,3 +279,83 @@ class D3HtmlRenderer(OrgChartRenderer):
 </body>
 </html>'''
         return html
+
+
+class MermaidRenderer(OrgChartRenderer):
+    """Mermaid graph TD renderer."""
+
+    def render(self, graph: OrgGraph, department: str | None = None, root_id: str | None = None) -> str:
+        nodes = list(graph.nodes.values())
+        if department:
+            nodes = [n for n in nodes if n.department == department]
+
+        node_ids = {n.contact.id for n in nodes}
+        lines = ["# Org Chart", "", "```mermaid", "graph TD"]
+
+        for node in nodes:
+            label = f"{node.contact.name}\\n{node.contact.title or ''}"
+            lines.append(f"    {node.contact.id}[\"{label}\"]")
+            if node.contact.manager and node.contact.manager in node_ids:
+                lines.append(f"    {node.contact.manager} --> {node.contact.id}")
+
+        lines += ["```", ""]
+        return "\n".join(lines)
+
+
+class PlantUMLRenderer(OrgChartRenderer):
+    """PlantUML org chart renderer with department packages."""
+
+    def render(self, graph: OrgGraph, department: str | None = None, root_id: str | None = None) -> str:
+        nodes = list(graph.nodes.values())
+        if department:
+            nodes = [n for n in nodes if n.department == department]
+
+        node_ids = {n.contact.id for n in nodes}
+
+        # Group by department
+        by_dept: dict[str, list] = {}
+        for node in nodes:
+            by_dept.setdefault(node.department, []).append(node)
+
+        lines = [
+            "@startuml",
+            "skinparam backgroundColor white",
+            "skinparam shadowing false",
+            "skinparam linetype ortho",
+            "skinparam nodesep 60",
+            "skinparam ranksep 80",
+            "top to bottom direction",
+            "",
+            "skinparam rectangle {",
+            "  BackgroundColor #E3F2FD",
+            "  BorderColor #1976D2",
+            "  FontStyle bold",
+            "  FontSize 11",
+            "}",
+            "skinparam package {",
+            "  BackgroundColor #F5F5F5",
+            "  BorderColor #757575",
+            "  FontStyle bold",
+            "  FontSize 13",
+            "}",
+            "",
+        ]
+
+        pkg_alias = {}
+        for i, (dept, members) in enumerate(by_dept.items()):
+            alias = f"PKG{i}"
+            pkg_alias[dept] = alias
+            lines.append(f'package "{dept}" as {alias} {{')
+            for node in members:
+                title = node.contact.title or ""
+                lines.append(f'  rectangle "**{node.contact.name}**\\n{title}" as {node.contact.id}')
+            lines.append("}")
+            lines.append("")
+
+        # Relationships
+        for node in nodes:
+            if node.contact.manager and node.contact.manager in node_ids:
+                lines.append(f"{node.contact.manager} --> {node.contact.id}")
+
+        lines += ["", "@enduml", ""]
+        return "\n".join(lines)

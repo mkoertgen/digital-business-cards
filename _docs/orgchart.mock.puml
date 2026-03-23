@@ -1,0 +1,59 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 80
+top to bottom direction
+
+skinparam rectangle {
+  BackgroundColor #E3F2FD
+  BorderColor #1976D2
+  FontStyle bold
+  FontSize 11
+}
+skinparam package {
+  BackgroundColor #F5F5F5
+  BorderColor #757575
+  FontStyle bold
+  FontSize 13
+}
+
+package "Geschäftsführung" as PKG0 {
+  rectangle "**Anna Ceos**\nGeschäftsführerin" as ACe
+  rectangle "**Bernd Manager**\nGeschäftsführer" as BMa
+}
+
+package "Engineering" as PKG1 {
+  rectangle "**Clara Heinz**\nHead of Technology" as CHe
+  rectangle "**Eva Bauer**\nSenior Software Engineer" as EBa
+  rectangle "**Frank Krause**\nDevOps Engineer" as FKr
+  rectangle "**Greta Wolf**\nSolution Architect" as GWo
+  rectangle "**Hans Meyer**\nJunior Developer" as HMe
+  rectangle "**Marc Pfeiffer**\nSecurity Engineer" as MPf
+}
+
+package "Operations" as PKG2 {
+  rectangle "**David Schmidt**\nHead of Operations" as DSc
+  rectangle "**Iris Koch**\nSenior Consultant" as IKo
+  rectangle "**Jana Lang**\nInside Sales" as JLa
+  rectangle "**Lena Berg**\nJunior Consultant" as LBe
+}
+
+package "Legal & Compliance" as PKG3 {
+  rectangle "**Klaus Müller**\nLegal Counsel" as KMu
+}
+
+ACe --> CHe
+BMa --> DSc
+CHe --> EBa
+CHe --> FKr
+CHe --> GWo
+EBa --> HMe
+DSc --> IKo
+DSc --> JLa
+DSc --> KMu
+IKo --> LBe
+CHe --> MPf
+
+@enduml

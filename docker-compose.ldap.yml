@@ -1,0 +1,30 @@
+services:
+  openldap:
+    image: osixia/openldap:1.5.0
+    ports:
+      - "389:389"
+    environment:
+      LDAP_ORGANISATION: "Acme GmbH"
+      LDAP_DOMAIN: acme.example
+      LDAP_ADMIN_PASSWORD: admin
+      LDAP_SEED_INTERNAL_LDIF_PATH: /ldifs
+    volumes:
+      - ./ldifs:/ldifs:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "ldapsearch",
+          "-x",
+          "-H",
+          "ldap://localhost",
+          "-b",
+          "dc=acme,dc=example",
+          "-D",
+          "cn=admin,dc=acme,dc=example",
+          "-w",
+          "admin",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

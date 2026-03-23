@@ -286,3 +286,6 @@ pyrightconfig.json
 data/*
 # Keep structure
 !data/output/.gitkeep
+# Mock data for documentation
+!data/contacts.mock.csv
+!data/orgchart.mock.html

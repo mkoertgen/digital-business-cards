@@ -1,0 +1,8 @@
+# Organizational structure for acme-gmbh.example demo LDAP
+dn: ou=people,dc=acme,dc=example
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=acme,dc=example
+objectClass: organizationalUnit
+ou: groups

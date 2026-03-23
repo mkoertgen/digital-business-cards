@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organigramm - acme</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.1.2/build/d3-flextree.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #1976D2;
+        }
+        #chart {
+            width: 100%;
+            height: 800px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .node-card {
+            background: #E3F2FD;
+            border: 2px solid #1976D2;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .node-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #1976D2;
+            margin-bottom: 4px;
+        }
+        .node-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .node-dept {
+            font-size: 11px;
+            color: #999;
+            font-style: italic;
+        }
+        .record-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        .record-btn:hover {
+            background: #c82333;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .record-btn.recording {
+            background: #28a745;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <button id="recordBtn" class="record-btn" title="Screen Recording starten/stoppen">🎥 Record</button>
+    <h1>Organigramm</h1>
+    <div id="chart"></div>
+    
+    <script>
+        // Screen Recording functionality
+        let mediaRecorder;
+        let recordedChunks = [];
+        const recordBtn = document.getElementById('recordBtn');
+
+        recordBtn.addEventListener('click', async () => {
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+                try {
+                    const stream = await navigator.mediaDevices.getDisplayMedia({
+                        video: { mediaSource: 'screen' },
+                        audio: false
+                    });
+                    
+                    recordedChunks = [];
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `orgchart-${new Date().toISOString().slice(0,10)}.webm`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        
+                        stream.getTracks().forEach(track => track.stop());
+                        recordBtn.classList.remove('recording');
+                        recordBtn.textContent = '🎥 Record';
+                    };
+                    
+                    mediaRecorder.start();
+                    recordBtn.classList.add('recording');
+                    recordBtn.textContent = '⏹️ Stop Recording';
+                } catch (err) {
+                    console.error('Recording failed:', err);
+                    alert('Screen Recording nicht möglich. Browser-Berechtigung erforderlich.');
+                }
+            } else {
+                mediaRecorder.stop();
+            }
+        });
+
+        const data = [
+  {
+    "id": "VIRTUAL_ROOT",
+    "name": "acme",
+    "title": "Organization",
+    "department": "",
+    "email": "",
+    "parentId": null
+  },
+  {
+    "id": "ACe",
+    "name": "Anna Ceos",
+    "title": "Geschäftsführerin",
+    "department": "Geschäftsführung",
+    "email": "anna.ceos@acme-gmbh.example",
+    "parentId": "VIRTUAL_ROOT",
+    "phone": "+49 (800) 000-0001",
+    "mobile": "+49 (160) 000-0001"
+  },
+  {
+    "id": "BMa",
+    "name": "Bernd Manager",
+    "title": "Geschäftsführer",
+    "department": "Geschäftsführung",
+    "email": "bernd.manager@acme-gmbh.example",
+    "parentId": "VIRTUAL_ROOT",
+    "phone": "+49 (800) 000-0002",
+    "mobile": "+49 (171) 000-0002"
+  },
+  {
+    "id": "CHe",
+    "name": "Clara Heinz",
+    "title": "Head of Technology",
+    "department": "Engineering",
+    "email": "clara.heinz@acme-gmbh.example",
+    "parentId": "ACe",
+    "phone": "+49 (800) 000-0010",
+    "mobile": "+49 (151) 000-0010"
+  },
+  {
+    "id": "DSc",
+    "name": "David Schmidt",
+    "title": "Head of Operations",
+    "department": "Operations",
+    "email": "david.schmidt@acme-gmbh.example",
+    "parentId": "BMa",
+    "phone": "+49 (800) 000-0011",
+    "mobile": "+49 (172) 000-0011"
+  },
+  {
+    "id": "EBa",
+    "name": "Eva Bauer",
+    "title": "Senior Software Engineer",
+    "department": "Engineering",
+    "email": "eva.bauer@acme-gmbh.example",
+    "parentId": "CHe",
+    "phone": "+49 (800) 000-0020"
+  },
+  {
+    "id": "FKr",
+    "name": "Frank Krause",
+    "title": "DevOps Engineer",
+    "department": "Engineering",
+    "email": "frank.krause@acme-gmbh.example",
+    "parentId": "CHe",
+    "phone": "+49 (800) 000-0021"
+  },
+  {
+    "id": "GWo",
+    "name": "Greta Wolf",
+    "title": "Solution Architect",
+    "department": "Engineering",
+    "email": "greta.wolf@acme-gmbh.example",
+    "parentId": "CHe",
+    "phone": "+49 (800) 000-0022",
+    "mobile": "+49 (178) 000-0022"
+  },
+  {
+    "id": "HMe",
+    "name": "Hans Meyer",
+    "title": "Junior Developer",
+    "department": "Engineering",
+    "email": "hans.meyer@acme-gmbh.example",
+    "parentId": "EBa",
+    "phone": "+49 (800) 000-0023"
+  },
+  {
+    "id": "IKo",
+    "name": "Iris Koch",
+    "title": "Senior Consultant",
+    "department": "Operations",
+    "email": "iris.koch@acme-gmbh.example",
+    "parentId": "DSc",
+    "phone": "+49 (800) 000-0030",
+    "mobile": "+49 (175) 000-0030"
+  },
+  {
+    "id": "JLa",
+    "name": "Jana Lang",
+    "title": "Inside Sales",
+    "department": "Operations",
+    "email": "jana.lang@acme-gmbh.example",
+    "parentId": "DSc",
+    "phone": "+49 (800) 000-0031"
+  },
+  {
+    "id": "KMu",
+    "name": "Klaus Müller",
+    "title": "Legal Counsel",
+    "department": "Legal & Compliance",
+    "email": "k.mueller@acme-gmbh.example",
+    "parentId": "DSc",
+    "phone": "+49 (800) 000-0032"
+  },
+  {
+    "id": "LBe",
+    "name": "Lena Berg",
+    "title": "Junior Consultant",
+    "department": "Operations",
+    "email": "lena.berg@acme-gmbh.example",
+    "parentId": "IKo",
+    "phone": "+49 (800) 000-0033"
+  },
+  {
+    "id": "MPf",
+    "name": "Marc Pfeiffer",
+    "title": "Security Engineer",
+    "department": "Engineering",
+    "email": "marc.pfeiffer@acme-gmbh.example",
+    "parentId": "CHe",
+    "phone": "+49 (800) 000-0024"
+  }
+];
+        
+        // Department color scheme
+        const deptColors = {
+            'Geschäftsführung': { bg: '#FFE0B2', border: '#FF6F00', text: '#E65100' },
+            'Architecture & Development': { bg: '#E3F2FD', border: '#1976D2', text: '#0D47A1' },
+            'Legal & Compliance': { bg: '#F3E5F5', border: '#7B1FA2', text: '#4A148C' },
+            '': { bg: '#ECEFF1', border: '#546E7A', text: '#263238' }  // Virtual root
+        };
+        
+        const chart = new d3.OrgChart()
+            .container('#chart')
+            .data(data)
+            .nodeWidth(d => 180)
+            .nodeHeight(d => 80)
+            .childrenMargin(d => 50)
+            .compactMarginBetween(d => 30)
+            .compactMarginPair(d => 50)
+            .nodeContent(function(d) {
+                const colors = deptColors[d.data.department] || deptColors[''];
+                return `
+                    <div class="node-card" style="background: ${colors.bg}; border-color: ${colors.border};">
+                        <div class="node-name" style="color: ${colors.text};">${d.data.name}</div>
+                        <div class="node-title">${d.data.title}</div>
+                        <div class="node-dept">${d.data.department}</div>
+                    </div>
+                `;
+            })
+            .render();
+    </script>
+</body>
+</html>

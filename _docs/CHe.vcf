@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+EMAIL;TYPE=INTERNET:clara.heinz@acme-gmbh.example
+FN:Clara Heinz
+N:Heinz;Clara;;;
+NOTE:Department: Engineering
+ORG:acme
+TEL;TYPE=WORK:+49 (800) 000-0010
+TEL;TYPE=CELL:+49 (151) 000-0010
+TITLE:Head of Technology
+END:VCARD

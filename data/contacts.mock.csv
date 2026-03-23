@@ -1,0 +1,14 @@
+id,name,email,title,department,phone,mobile,manager,company,active
+ACe,Anna Ceos,anna.ceos@acme-gmbh.example,Geschäftsführerin,Management,+49 (800) 000-0001,+49 (160) 000-0001,,acme,True
+BMa,Bernd Manager,bernd.manager@acme-gmbh.example,Geschäftsführer,Operations,+49 (800) 000-0002,+49 (171) 000-0002,,acme,True
+CHe,Clara Heinz,clara.heinz@acme-gmbh.example,Head of Technology,Engineering,+49 (800) 000-0010,+49 (151) 000-0010,ACe,acme,True
+DSc,David Schmidt,david.schmidt@acme-gmbh.example,Head of Operations,Operations,+49 (800) 000-0011,+49 (172) 000-0011,BMa,acme,True
+EBa,Eva Bauer,eva.bauer@acme-gmbh.example,Senior Software Engineer,Engineering,+49 (800) 000-0020,,CHe,acme,True
+FKr,Frank Krause,frank.krause@acme-gmbh.example,DevOps Engineer,Engineering,+49 (800) 000-0021,,CHe,acme,True
+GWo,Greta Wolf,greta.wolf@acme-gmbh.example,Solution Architect,Engineering,+49 (800) 000-0022,+49 (178) 000-0022,CHe,acme,True
+HMe,Hans Meyer,hans.meyer@acme-gmbh.example,Junior Developer,Engineering,+49 (800) 000-0023,,EBa,acme,True
+IKo,Iris Koch,iris.koch@acme-gmbh.example,Senior Consultant,Operations,+49 (800) 000-0030,+49 (175) 000-0030,DSc,acme,True
+JLa,Jana Lang,jana.lang@acme-gmbh.example,Inside Sales,Operations,+49 (800) 000-0031,,DSc,acme,True
+KMu,Klaus Müller,k.mueller@acme-gmbh.example,Legal Counsel,Legal & Compliance,+49 (800) 000-0032,,DSc,acme,True
+LBe,Lena Berg,lena.berg@acme-gmbh.example,Junior Consultant,Operations,+49 (800) 000-0033,,IKo,acme,True
+MPf,Marc Pfeiffer,marc.pfeiffer@acme-gmbh.example,Security Engineer,Engineering,+49 (800) 000-0024,,CHe,acme,True

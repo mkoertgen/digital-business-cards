@@ -6,6 +6,7 @@ from pathlib import Path
 import click
 
 from src.azure_sync import AzureContactSync
+from src.ldap_sync import LdapContactSync
 from src.models import Contact, QRConfig
 from src.orgchart import OrgChartGenerator
 from src.qr_generator import QRCodeGenerator
@@ -27,29 +28,37 @@ def cli(verbose: bool) -> None:
 
 
 @cli.command()
+@click.option('--source', '-s', type=click.Choice(['entra', 'ldap']), default='entra',
+              help='Directory source to sync from (default: entra)')
 @click.option('--department', '-d', default=None,
               help='Filter by department (e.g., "Engineering")')
 @click.option('--interactive', is_flag=True,
-              help='Use browser authentication (vs. az login cache)')
+              help='Use browser authentication (Entra only, vs. az login cache)')
 @click.option('--dry-run', is_flag=True,
               help='Preview without saving')
-def sync(department: str | None, interactive: bool, dry_run: bool) -> None:
+def sync(source: str, department: str | None, interactive: bool, dry_run: bool) -> None:
     """
-    Sync contacts from Azure AD/Entra.
-    
-    By default, uses cached Azure CLI tokens (from `az login`).
-    If no cached tokens exist and --interactive is set, opens browser.
-    
+    Sync contacts from a directory service.
+
+    Sources:
+      entra  - Azure AD / Entra ID via Microsoft Graph (default)
+      ldap   - LDAP / Active Directory (configure via LDAP_* env vars)
+
     Examples:
-      dbc sync                    # Use az login cache
-      dbc sync --interactive       # Open browser if needed
-      dbc sync --department "Engineering"  # Filter by dept
+      dbc sync                          # Entra via az login
+      dbc sync --source ldap            # LDAP via LDAP_URL / LDAP_BIND_DN env
+      dbc sync --source entra --interactive
+      dbc sync --department "Engineering"
     """
     try:
-        # Sync from Azure
-        click.echo("🔍 Connecting to Azure AD...")
-        syncer = AzureContactSync(interactive=interactive)
-        contacts = syncer.fetch_contacts(department=department)
+        if source == 'ldap':
+            click.echo("🔍 Connecting to LDAP...")
+            syncer = LdapContactSync()
+            contacts = syncer.fetch_contacts(department=department)
+        else:
+            click.echo("🔍 Connecting to Azure AD / Entra...")
+            syncer = AzureContactSync(interactive=interactive)
+            contacts = syncer.fetch_contacts(department=department)
         
         if not contacts:
             click.secho("⚠️  No contacts found", fg="yellow")
@@ -85,7 +94,9 @@ def sync(department: str | None, interactive: bool, dry_run: bool) -> None:
               help='QR code format')
 @click.option('--size', '-s', type=int, default=256,
               help='QR code size in pixels')
-def generate_all(output: str, format: str, size: int) -> None:
+@click.option('--contacts', '-c', default=None, type=click.Path(exists=True),
+              help='Custom contacts CSV (default: data/contacts.csv)')
+def generate_all(output: str, format: str, size: int, contacts: str | None) -> None:
     """
     Generate QR codes for all contacts.
     
@@ -95,13 +106,16 @@ def generate_all(output: str, format: str, size: int) -> None:
       dbc generate-all
       dbc generate-all --output ./cards
       dbc generate-all --format svg --size 512
+      dbc generate-all --contacts data/contacts.mock.csv --output data/output-mock
     """
     output_dir = Path(output)
     
     try:
         # Load contacts
-        storage = ContactStorage()
-        contacts = storage.load()
+        csv_path = Path(contacts) if contacts else Path("data/contacts.csv")
+        storage = ContactStorage(csv_path=csv_path)
+        contacts_list = storage.load()
+        contacts = contacts_list
         
         if not contacts:
             click.secho("❌ No contacts found. Run 'dbc sync' first.", fg="red")
@@ -239,7 +253,7 @@ def list(verbose: bool) -> None:
 
 
 @cli.command()
-@click.option('--format', '-f', type=click.Choice(['d3-html', 'd3']), default='d3-html',
+@click.option('--format', '-f', type=click.Choice(['d3-html', 'd3', 'mermaid', 'puml']), default='d3-html',
               help='Diagram format (default: d3-html for interactive)')
 @click.option('--department', '-d', default=None,
               help='Filter by department')
@@ -247,7 +261,9 @@ def list(verbose: bool) -> None:
               help='Start from specific contact ID')
 @click.option('--output', '-o', default=None, type=click.Path(),
               help='Output file (.html/.json)')
-def orgchart(format: str, department: str | None, root: str | None, output: str | None) -> None:
+@click.option('--contacts', '-c', default=None, type=click.Path(exists=True),
+              help='Custom contacts CSV (default: data/contacts.csv)')
+def orgchart(format: str, department: str | None, root: str | None, output: str | None, contacts: str | None) -> None:
     """
     Generate organization chart from contact hierarchy.
     
@@ -258,13 +274,15 @@ def orgchart(format: str, department: str | None, root: str | None, output: str 
       d3       - JSON data for d3-org-chart library (.json)
     
     Examples:
-      dbc orgchart                              # Interactive HTML to stdout
-      dbc orgchart --format d3-html -o org.html # Interactive HTML to file
-      dbc orgchart --format d3 -o org.json      # D3 JSON data
-      dbc orgchart --department "Engineering"   # Filter by dept
+      dbc orgchart                                        # Interactive HTML to stdout
+      dbc orgchart --format d3-html -o org.html           # Interactive HTML to file
+      dbc orgchart --format d3 -o org.json                # D3 JSON data
+      dbc orgchart --department "Engineering"             # Filter by dept
+      dbc orgchart --contacts data/contacts.mock.csv      # Use custom CSV
     """
     try:
-        storage = ContactStorage()
+        csv_path = Path(contacts) if contacts else Path("data/contacts.csv")
+        storage = ContactStorage(csv_path=csv_path)
         contacts = storage.load()
         
         if not contacts:
@@ -282,13 +300,16 @@ def orgchart(format: str, department: str | None, root: str | None, output: str 
             click.secho(f"📊 Generating {format} diagram for {len(contacts)} contacts", fg="cyan")
         
         # Auto-detect extension if not provided
-        if output and not output.endswith(('.json', '.html')):
-            ext_map = {
-                'd3': '.json',
-                'd3-html': '.html'
-            }
-            ext = ext_map.get(format, '.html')
-            output = output + ext
+        ext_map = {
+            'd3': '.json',
+            'd3-html': '.html',
+            'mermaid': '.md',
+            'puml': '.puml',
+        }
+        if output:
+            known_exts = ('.json', '.html', '.md', '.puml')
+            if not any(output.endswith(e) for e in known_exts):
+                output = output + ext_map.get(format, '.html')
         
         # Generate diagram
         generator = OrgChartGenerator(storage)

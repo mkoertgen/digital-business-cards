@@ -1,0 +1,6 @@
+{
+  "plantuml.server": "https://www.plantuml.com/plantuml",
+  "plantuml.render": "PlantUMLServer",
+  "plantuml.diagramsRoot": ".",
+  "plantuml.exportOutDir": "."
+}

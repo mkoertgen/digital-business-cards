@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from src.orgchart_graph import OrgGraph
-from src.orgchart_renderers import D3JsonRenderer, D3HtmlRenderer
+from src.orgchart_renderers import D3JsonRenderer, D3HtmlRenderer, MermaidRenderer, PlantUMLRenderer
 from src.storage import ContactStorage
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,9 @@ class OrgChartGenerator:
         self.storage = storage
         self.renderers = {
             'd3': D3JsonRenderer(),
-            'd3-html': D3HtmlRenderer()
+            'd3-html': D3HtmlRenderer(),
+            'mermaid': MermaidRenderer(),
+            'puml': PlantUMLRenderer(),
         }
     
     def export(
@@ -55,8 +57,12 @@ class OrgChartGenerator:
             diagram = self.renderers['d3'].render(graph, department, root_id)
         elif format_lower in ["d3-html", "html"]:
             diagram = self.renderers['d3-html'].render(graph, department, root_id)
+        elif format_lower in ["mermaid", "mmd"]:
+            diagram = self.renderers['mermaid'].render(graph, department, root_id)
+        elif format_lower in ["puml", "plantuml"]:
+            diagram = self.renderers['puml'].render(graph, department, root_id)
         else:
-            raise ValueError(f"Unsupported format: {format}. Use: d3, d3-html")
+            raise ValueError(f"Unsupported format: {format}. Use: d3, d3-html, mermaid, puml")
         
         if output_file:
             output_file.parent.mkdir(parents=True, exist_ok=True)
