@@ -1,6 +1,6 @@
 # Digital Business Cards
 
-Generate QR codes for digital business cards from Azure AD/Entra contacts.
+Generate QR codes for digital business cards from your company directory — supports Azure AD/Entra and LDAP/Active Directory.
 
 ![](_docs/org-chart.png)
 
@@ -8,7 +8,7 @@ Generate QR codes for digital business cards from Azure AD/Entra contacts.
 
 ## Features
 
-- 🔄 Sync contacts from Azure AD/Entra (reuses `az login` credentials)
+- 🔄 Sync contacts from **Azure AD/Entra** or **LDAP/Active Directory**
 - 📇 Generate vCard (VCF) files with contact details
 - 📱 Create QR codes containing vCard data
 - 📊 Generate interactive org charts (HTML, Mermaid, PlantUML)
@@ -20,23 +20,60 @@ Generate QR codes for digital business cards from Azure AD/Entra contacts.
 ```bash
 # Install uv: https://docs.astral.sh/uv/getting-started/installation/
 
-az login                 # First-time Azure login
-uv run dbc sync          # Sync contacts from Azure AD
-uv run dbc generate-all  # Generate all QR codes + vCards
-uv run dbc generate MKo  # Single card
-uv run dbc orgchart -o org.html  # Interactive org chart
+# First-time Azure login
+az login
+
+# Sync contacts from Azure AD
+uv run dbc sync
+
+# Generate all QR codes
+uv run dbc generate-all
+
+# Generate single card
+uv run dbc generate MKo
 ```
+
+> **Recommended**: Use `uv` for automatic dependency management and virtual environment handling.
+> Alternatively, you can use `pip install -e .` and run `dbc` directly.
 
 ## Commands
 
-### Sync
+### Sync from Azure AD
 
 ```bash
 uv run dbc sync
 uv run dbc sync --department "Engineering"
-uv run dbc sync --interactive   # browser auth
+
+# Interactive browser auth (first-time)
+uv run dbc sync --interactive
+
+# Preview without saving
 uv run dbc sync --dry-run
 ```
+
+**LDAP / Active Directory**:
+
+Configure via environment variables (see [`.env.ldap.example`](.env.ldap.example)):
+
+```bash
+export LDAP_URL=ldap://dc.example.com
+export LDAP_BIND_DN="CN=svc-dbc,OU=ServiceAccounts,DC=example,DC=com"
+export LDAP_BIND_PASSWORD=secret
+export LDAP_BASE_DN="DC=example,DC=com"
+
+uv run dbc sync --source ldap
+uv run dbc sync --source ldap --department "Engineering"
+uv run dbc sync --source ldap --dry-run
+```
+
+For a local demo with mock data:
+
+```bash
+docker compose -f docker-compose.ldap.yml up -d   # start OpenLDAP with 13 mock contacts
+uv run dbc sync --source ldap --dry-run
+```
+
+See [\_docs/sync-sources.md](_docs/sync-sources.md) for full documentation of all sync options.
 
 ### Generate QR Codes
 
@@ -77,7 +114,7 @@ data/
 ## Requirements
 
 - Python 3.11+
-- Azure CLI (`az login`)
+- Azure CLI (`az login` for authentication)
 - Azure AD read permissions
 
 ## License
