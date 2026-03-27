@@ -77,6 +77,6 @@ uv run pytest                             # Run tests
 
 ## Cross-repo
 
-Working rules (git, editorconfig, gitattributes, code principles) are intentionally kept in sync  
-across `mkoertgen/*` repos. Candidate for a shared global skill — see  
-[ADR-0001](https://github.com/mkoertgen/... ) in `colenio-infra`.
+Working rules (git, editorconfig, gitattributes, code principles) are intentionally kept in sync
+across `mkoertgen/*` repos. Candidate for a shared global skill — see
+[ADR-0001](https://github.com/mkoertgen/...) in `colenio-infra`.
