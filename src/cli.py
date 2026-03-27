@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 import click
+from dotenv import load_dotenv
 
 from src.azure_sync import AzureContactSync
 from src.ldap_sync import LdapContactSync
@@ -36,7 +37,9 @@ def cli(verbose: bool) -> None:
               help='Use browser authentication (Entra only, vs. az login cache)')
 @click.option('--dry-run', is_flag=True,
               help='Preview without saving')
-def sync(source: str, department: str | None, interactive: bool, dry_run: bool) -> None:
+@click.option('--env-file', 'env_file', default=None, metavar='FILE',
+              help='Dotenv file to load (default: .env.<source>, then .env)')
+def sync(source: str, department: str | None, interactive: bool, dry_run: bool, env_file: str | None) -> None:
     """
     Sync contacts from a directory service.
 
@@ -50,6 +53,16 @@ def sync(source: str, department: str | None, interactive: bool, dry_run: bool) 
       dbc sync --source entra --interactive
       dbc sync --department "Engineering"
     """
+    # Load env file: explicit > .env.<source> > .env
+    _env_path = Path(env_file) if env_file else Path(f".env.{source}")
+    if not _env_path.exists() and not env_file:
+        _env_path = Path(".env")
+    if _env_path.exists():
+        load_dotenv(_env_path)
+        logger.debug(f"Loaded env from {_env_path}")
+    elif env_file:
+        raise click.UsageError(f"Env file not found: {env_file}")
+
     try:
         if source == 'ldap':
             click.echo("🔍 Connecting to LDAP...")

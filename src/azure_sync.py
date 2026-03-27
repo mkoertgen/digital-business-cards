@@ -53,12 +53,9 @@ class AzureContactSync:
         """
         logger.info("Fetching contacts from Microsoft Graph...")
         
-        # Get access token
-        token = self.credential.get_token(*self.SCOPES)
-        
         # Query Graph API
         headers = {
-            "Authorization": f"Bearer {token.token}",
+            "Authorization": "",  # set per page in loop below
             "Content-Type": "application/json"
         }
         params = {
@@ -68,10 +65,18 @@ class AzureContactSync:
             "$top": "999"
         }
         
-        response = requests.get(self.GRAPH_URL, headers=headers, params=params)
-        response.raise_for_status()
-        
-        users = response.json().get('value', [])
+        users = []
+        url: Optional[str] = self.GRAPH_URL
+        while url:
+            # Refresh token each page — credential caches and auto-renews
+            token = self.credential.get_token(*self.SCOPES)
+            headers["Authorization"] = f"Bearer {token.token}"
+            response = requests.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+            users.extend(data.get("value", []))
+            url = data.get("@odata.nextLink")  # None on last page
+            params = {}  # nextLink already contains all query params
         logger.info(f"Found {len(users)} active users in Azure AD")
         
         # Filter by department

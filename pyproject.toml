@@ -27,6 +27,7 @@ dependencies = [
     "qrcode[pil]>=7.4.2",
     "segno>=1.6.0",  # Alternative: better SVG support
     "ldap3>=2.9.1",
+    "python-dotenv>=1.0.0",
 ]
 
 [project.optional-dependencies]

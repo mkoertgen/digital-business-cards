@@ -34,6 +34,9 @@ LDAP_ATTRIBUTES = [
 # userAccountControl bit 1 (0x2) = account disabled
 UAC_DISABLED = 0x2
 
+# AD default page size limit is 1000; stay safely below it
+LDAP_PAGE_SIZE = 500
+
 
 class LdapContactSync:
     """Sync contacts from LDAP / Active Directory."""
@@ -104,14 +107,26 @@ class LdapContactSync:
             search_filter = base_filter
 
         logger.info(f"Searching: base={self.base_dn}, filter={search_filter}")
-        conn.search(
-            search_base=self.base_dn,
-            search_filter=search_filter,
-            attributes=ALL_ATTRIBUTES,  # fetch everything; parse code handles missing attrs
-        )
-
-        entries = conn.entries
-        logger.info(f"Found {len(entries)} entries in LDAP")
+        entries = []
+        cookie = b""
+        while True:
+            conn.search(
+                search_base=self.base_dn,
+                search_filter=search_filter,
+                attributes=ALL_ATTRIBUTES,  # fetch everything; parse code handles missing attrs
+                paged_size=LDAP_PAGE_SIZE,
+                paged_cookie=cookie,
+            )
+            entries.extend(conn.entries)
+            cookie = (
+                conn.result.get("controls", {})
+                .get("1.2.840.113556.1.4.319", {})
+                .get("value", {})
+                .get("cookie", b"")
+            )
+            if not cookie:
+                break
+        logger.info(f"Found {len(entries)} entries in LDAP (page size: {LDAP_PAGE_SIZE})")
 
         # Build DN → contact map for manager resolution
         dn_map: dict[str, str] = {}  # DN → short ID
