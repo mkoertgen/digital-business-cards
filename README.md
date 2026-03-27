@@ -5,6 +5,8 @@ Generate QR codes for digital business cards from your company directory — sup
 ![](_docs/org-chart.png)
 
 > See [\_docs/examples.md](_docs/examples.md) for screenshots, a demo recording, and diagram examples (Mermaid/PlantUML).
+>
+> For a comparison with SharePoint/SPFx org chart solutions, see [\_docs/orgchart-alternatives.md](_docs/orgchart-alternatives.md).
 
 ## Features
 
@@ -116,6 +118,10 @@ data/
 - Python 3.11+
 - Azure CLI (`az login` for authentication)
 - Azure AD read permissions
+
+## Ideas & Potential Extensions
+
+See [\_docs/roadmap.md](_docs/roadmap.md) for planned and potential features (avatars, server mode, presence status, vCard 4.0, PDF export, multi-source merge, CI integration).
 
 ## License
 
